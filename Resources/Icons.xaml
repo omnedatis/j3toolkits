@@ -1,0 +1,41 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:res="clr-namespace:wzd32.Resources"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!--  使用 Segoe MDL2 Assets 系列圖示  -->
+    <FontFamily x:Key="IconFont">Segoe MDL2 Assets</FontFamily>
+
+    <!--  常用 Glyphs  -->
+    <sys:String x:Key="IconAccept">&#xE8FB;</sys:String>
+    <sys:String x:Key="IconCancel">&#xE711;</sys:String>
+    <sys:String x:Key="IconHelp">&#xE11B;</sys:String>
+    <sys:String x:Key="IconInfo">&#xE946;</sys:String>
+    <sys:String x:Key="IconWarning">&#xE7BA;</sys:String>
+    <sys:String x:Key="IconError">&#xEA39;</sys:String>
+    <sys:String x:Key="IconSearch">&#xE721;</sys:String>
+    <sys:String x:Key="IconSettings">&#xE713;</sys:String>
+    <sys:String x:Key="IconClose">&#xE8BB;</sys:String>
+    <sys:String x:Key="IconEdit">&#xE70F;</sys:String>
+    <sys:String x:Key="IconDelete">&#xE74D;</sys:String>
+    <sys:String x:Key="IconAdd">&#xE710;</sys:String>
+    <sys:String x:Key="IconSave">&#xE74E;</sys:String>
+    <sys:String x:Key="IconUpload">&#xE898;</sys:String>
+    <sys:String x:Key="IconDownload">&#xE896;</sys:String>
+    <sys:String x:Key="IconUser">&#xE77B;</sys:String>
+    <sys:String x:Key="IconLock">&#xE72E;</sys:String>
+    <sys:String x:Key="IconUnlock">&#xE785;</sys:String>
+    <sys:String x:Key="IconRefresh">&#xE72C;</sys:String>
+    <sys:String x:Key="IconHome">&#xE80F;</sys:String>
+    <sys:String x:Key="IconOpenWith">&#xE7AC;</sys:String>
+
+    <!--  Style Template  -->
+    <!--<Style x:Key="InfoIcons" TargetType="Glyphs">
+        <Setter Property="Fill" Value="{StaticResource TextBrush}" />
+        <Setter Property="UnicodeString" Value="{StaticResource IconInfo}" />
+        <Setter Property="OriginX" Value="0" />
+        <Setter Property="FontRenderingEmSize" Value="200" />
+        <Setter Property="OriginY" Value="20" />
+    </Style>-->
+</ResourceDictionary>

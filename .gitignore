@@ -7,6 +7,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/Dotnet.gitignore
 
+## VS related
+.vs/
+*.user
+*.suo
+*.userprefs
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -22,6 +28,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+
+
 
 # .NET Core
 project.lock.json

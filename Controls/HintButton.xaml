@@ -1,0 +1,42 @@
+﻿<UserControl
+    x:Class="wzd32.Controls.HintButton"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ctrl="clr-namespace:wzd32.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="200"
+    d:DesignWidth="200"
+    mc:Ignorable="d">
+    <Grid ClipToBounds="False">
+        <Button
+            Grid.Row="0"
+            Grid.Column="0"
+            Width="Auto"
+            Height="Auto"
+            MaxWidth="50"
+            MaxHeight="50"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            d:Content="測試"
+            ClipToBounds="False"
+            Command="{Binding Command, RelativeSource={RelativeSource AncestorType=UserControl}}"
+            Content="{Binding ButtonText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+            Style="{DynamicResource {x:Type Button}}" />
+        <TextBlock
+            Width="Auto"
+            Height="Auto"
+            MinWidth="50"
+            MaxHeight="50"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            Panel.ZIndex="10"
+            d:Text="This is a hint message"
+            ClipToBounds="False"
+            FontStyle="Italic"
+            Foreground="#FF656669"
+            Text="{Binding HintText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+            TextAlignment="Left"
+            TextWrapping="NoWrap" />
+    </Grid>
+</UserControl>

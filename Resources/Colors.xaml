@@ -1,0 +1,30 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:res="clr-namespace:wzd32.Resources"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!--  Primary Palette  -->
+    <Color x:Key="PrimaryColor">#FF0066CC</Color>
+    <Color x:Key="SecondaryColor">#FF00CC99</Color>
+    <Color x:Key="AccentColor">#FFFFC107</Color>
+
+    <!--  Neutral  -->
+    <Color x:Key="TextPrimary">#FF212121</Color>
+    <Color x:Key="DarkForeground">#FFFFFFFF</Color>
+    <Color x:Key="DarkControl">#FF202020</Color>
+    <Color x:Key="DarkPanel">#FF191919</Color>
+    <Color x:Key="DarkBorder">#FF424242</Color>
+    <Color x:Key="Transparent">#00FFFFFF</Color>
+    <Color x:Key="LightForeground">#FF656669</Color>
+
+    <!--  Brushes  -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}" />
+    <SolidColorBrush x:Key="TextBrush" Color="{StaticResource DarkForeground}" />
+    <SolidColorBrush x:Key="TransparentBrush" Color="{StaticResource Transparent}" />
+    <SolidColorBrush x:Key="ControlBrush" Color="{StaticResource DarkControl}" />
+    <SolidColorBrush x:Key="PanelBrush" Color="{StaticResource DarkPanel}" />
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource DarkBorder}" />
+    <SolidColorBrush x:Key="FormBrush" Color="{StaticResource LightForeground}" />
+</ResourceDictionary>

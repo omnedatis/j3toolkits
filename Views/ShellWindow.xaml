@@ -1,0 +1,27 @@
+﻿<Window
+    x:Class="wzd32.Views.ShellWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:wzd32.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="模擬器精靈"
+    Width="800"
+    Height="600"
+    Icon="/Assets/bentlyw.ico"
+    mc:Ignorable="d">
+
+    <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
+        <ScrollViewer.Resources>
+            <Style TargetType="Thumb">
+                <Setter Property="Background" Value="#666" />
+                <Setter Property="Height" Value="40" />
+            </Style>
+        </ScrollViewer.Resources>
+
+
+        <Frame Source="MainPage.xaml" />
+
+    </ScrollViewer>
+
+</Window>

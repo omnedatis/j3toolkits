@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+	  <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+	  <EnableDefaultPageItems>false</EnableDefaultPageItems>
+	  <OutputType>WinExe</OutputType>
+	  <StartupObject>wzd32.Program</StartupObject>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="wizard">
+		  <HintPath>..\wizard\bin\Debug\net8.0-windows\wizard.dll</HintPath>
+		</Reference>
+		<Content Include="config.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+    <None Remove="Assets\bentlyw.ico" />
+    <None Remove="Controls\UserInfoDialog.xaml" />
+    <None Remove="Resources\Colors.xaml" />
+    <None Remove="Resources\Fonts.xaml" />
+    <None Remove="Resources\HintButton.xaml" />
+    <None Remove="Resources\Icons.xaml" />
+    <None Remove="Views\MainPage.xaml" />
+    <None Remove="Views\ShellWindow.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.EventSource" Version="9.0.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Prism.Core" Version="9.0.537" />
+    <PackageReference Include="Prism.Wpf" Version="9.0.537" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <Content Include="config.json" />
+    <Page Include="Controls\TextBorder.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\UserInfoDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Colors.xaml" />
+	<Page Include="Resources\Dictionary.xaml" />
+	<Page Include="Resources\Fonts.xaml" />
+	<Page Include="Controls\HintButton.xaml" />
+	<Page Include="Resources\Icons.xaml" />
+	<Page Include="Views\MainPage.xaml" />
+	<Page Include="Views\ShellWindow.xaml">
+	  <Generator>MSBuild:Compile</Generator>
+	</Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\bentlyw.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+
+</Project>
