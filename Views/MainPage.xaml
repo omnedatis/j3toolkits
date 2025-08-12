@@ -9,8 +9,6 @@
     Title="模擬器精靈"
     MinWidth="800"
     MinHeight="600"
-    d:DesignHeight="600"
-    d:DesignWidth="800"
     mc:Ignorable="d">
     <Page.DataContext>
         <vm:MainViewModel />
@@ -21,87 +19,104 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/wzd32;component/Resources/Dictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <Style TargetType="Control">
-                <Setter Property="Background" Value="{StaticResource TransparentBrush}" />
-                <Setter Property="BorderBrush" Value="{StaticResource TransparentBrush}" />
-                <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-                <Setter Property="FontFamily" Value="{StaticResource FontDefault}" />
-                <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
-                <Setter Property="FontWeight" Value="Bold" />
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="Padding" Value="2,5" />
+            <SolidColorBrush x:Key="PrimaryBrush" Color="#FF2D8CFF" />
+            <SolidColorBrush x:Key="ControlBgBrush" Color="#FFF0F0F0" />
+            <SolidColorBrush x:Key="TransparentBrush" Color="Transparent" />
+            <Thickness x:Key="ActionPadding">10,6</Thickness>
+            <CornerRadius x:Key="ActionCorner">6</CornerRadius>
+            <FontFamily x:Key="ActionFont">Segoe UI</FontFamily>
+            <Style x:Key="SharedActionStyle">
+                <!--  用 owner-qualified property，能套到任意繼承 Control 的物件  -->
+                <Setter Property="Control.Background" Value="{StaticResource TransparentBrush}" />
+                <Setter Property="Control.BorderBrush" Value="{StaticResource TransparentBrush}" />
+                <Setter Property="Control.Foreground" Value="{StaticResource TextBrush}" />
+                <Setter Property="Control.FontFamily" Value="{StaticResource ActionFont}" />
+                <Setter Property="Control.Padding" Value="{StaticResource ActionPadding}" />
+                <Setter Property="Control.FontWeight" Value="SemiBold" />
             </Style>
-            <Style BasedOn="{StaticResource {x:Type Control}}" TargetType="Button">
-                <Setter Property="VerticalContentAlignment" Value="Center" />
-                <Setter Property="MinHeight" Value="30" />
-                <Setter Property="MinWidth" Value="50" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border
-                                x:Name="Bd"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5">
-                                <ContentPresenter
-                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    Content="{TemplateBinding Content}"
-                                    ContentTemplate="{TemplateBinding ContentTemplate}" />
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
 
-                <Style.Triggers>
+            <!--  3) 把 ControlTemplate 抽成共用資源（Template 內用 TemplateBinding + DynamicResource）  -->
+            <ControlTemplate x:Key="ActionControlTemplate" TargetType="Button">
+                <Border
+                    x:Name="Bd"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{StaticResource ActionCorner}">
+                    <ContentPresenter
+                        Margin="{TemplateBinding Padding}"
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}" />
+                </Border>
+                <ControlTemplate.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                        <Setter TargetName="Bd" Property="Background" Value="{StaticResource PrimaryBrush}" />
                     </Trigger>
-                </Style.Triggers>
+                    <Trigger Property="IsPressed" Value="True">
+                        <Setter TargetName="Bd" Property="Opacity" Value="0.9" />
+                        <Setter TargetName="Bd" Property="RenderTransform">
+                            <Setter.Value>
+                                <TranslateTransform Y="1" />
+                            </Setter.Value>
+                        </Setter>
+                    </Trigger>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter TargetName="Bd" Property="Opacity" Value="0.45" />
+                    </Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+
+            <Style BasedOn="{StaticResource SharedActionStyle}" TargetType="Button">
+                <Setter Property="Template" Value="{StaticResource ActionControlTemplate}" />
+                <!--  針對 Button 可再加些預設值，例如 MinWidth/MinHeight  -->
+                <Setter Property="MinWidth" Value="60" />
+                <Setter Property="MinHeight" Value="30" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+            </Style>
 
 
-            </Style>
-            <Style TargetType="Border">
-                <Setter Property="CornerRadius" Value="3" />
-            </Style>
         </ResourceDictionary>
 
     </Page.Resources>
 
     <Grid
-        x:Name="MainConvas"
+        x:Name="MainCanvas"
+        Grid.ColumnSpan="2"
         MinWidth="800"
         MinHeight="600"
+        Margin="0,2,0,0"
         d:ShowGridLines="False"
         Background="{StaticResource ControlBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="60" />
-            <RowDefinition Height="60" />
-            <RowDefinition Height="480" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="5*" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100" />
-            <ColumnDefinition Width="700" />
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="7*" />
         </Grid.ColumnDefinitions>
         <Image
-            x:Name="iconimage"
-            Width="Auto"
-            Height="Auto"
+            x:Name="IconImage"
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            Width="50"
+            Height="50"
             MinWidth="40"
             MinHeight="40"
-            Margin="0,10,0,0"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center"
+            VerticalAlignment="Top"
             Panel.ZIndex="10"
             Source="/wzd32;component/Assets/bentlyw.ico"
             UseLayoutRounding="True" />
         <StackPanel
             Grid.Row="2"
             Grid.Column="0"
-            Margin="10">
+            Orientation="Vertical">
             <!--  this is a gplyh icon(can be ckicke)  -->
             <Button Margin="5">
                 <StackPanel>
@@ -124,49 +139,52 @@
         </StackPanel>
 
         <Grid
-            x:Name="PanelConvas"
-            Grid.Row="2"
+            x:Name="PanelCanvas"
+            Grid.Row="1"
+            Grid.RowSpan="3"
             Grid.Column="1"
-            Grid.ColumnSpan="2"
+            VerticalAlignment="Stretch"
             d:ShowGridLines="False"
             Background="{StaticResource PanelBrush}"
             ClipToBounds="False">
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="5*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="600" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
+
             <StackPanel
                 Grid.Row="0"
                 Grid.Column="0"
-                MinWidth="600"
-                MaxHeight="90"
+                Width="700"
+                HorizontalAlignment="Right"
                 VerticalAlignment="Center"
-                ClipToBounds="False"
                 FlowDirection="RightToLeft"
                 Orientation="Horizontal">
-                <ctrl:HintButton
-                    Width="50"
-                    Height="50"
-                    ButtonText="註冊"
-                    Command="{Binding RegisterCommand}"
-                    HintText="{Binding LastModifyDT}"
-                    Loaded="HintButton_Loaded_2"
-                    UseLayoutRounding="False" />
-                <Button Command="{Binding TestCommand}" Content="執行" />
-            </StackPanel>
+                <Button
+                    Width="100"
+                    Height="80"
+                    Command="{Binding WriteDataCommand}"
+                    Content="儲存" />
 
+                <Button
+                    Width="100"
+                    Height="80"
+                    Command="{Binding ReadDataCommand}"
+                    Content="匯入" />
+
+
+            </StackPanel>
             <DataGrid
                 x:Name="UserInfo"
                 Grid.Row="1"
                 Grid.Column="0"
-                Grid.ColumnSpan="1"
                 MinWidth="600"
-                MinHeight="300"
-                Margin="20"
+                MaxHeight="350"
+                Margin="20,0,20,0"
                 AutoGenerateColumns="True"
                 Background="#FFC7C7C7"
                 BorderBrush="#FF383838"
@@ -178,10 +196,32 @@
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.VerticalScrollBarVisibility="Visible"
                 SelectionChanged="UserInfo_SelectionChanged" />
+            <StackPanel
+                Grid.Row="2"
+                Grid.Column="0"
+                MinWidth="700"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom"
+                FlowDirection="RightToLeft"
+                Orientation="Horizontal">
+                <ctrl:HintButton
+                    Width="100"
+                    Height="80"
+                    ButtonText="註冊"
+                    ClipToBounds="False"
+                    Command="{Binding RegisterCommand}"
+                    HintText="{Binding LastModifyDT}"
+                    Loaded="HintButton_Loaded_2" />
+                <Button
+                    Width="100"
+                    Height="80"
+                    Command="{Binding TestCommand}"
+                    Content="執行" />
+
+
+            </StackPanel>
 
         </Grid>
-
-
     </Grid>
 
 </Page>

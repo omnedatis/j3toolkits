@@ -1,31 +1,17 @@
-﻿using Prism.Dialogs;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using wzd32.ViewModels;
 namespace wzd32.Controls;
-    /// <summary>
-    /// Interaction logic for Window1.xaml
-    /// </summary>
-public interface IUserInfoDialog 
+/// <summary>
+/// Interaction logic for Window1.xaml
+/// </summary>
+public interface IUserInfoDialog
 {
     bool ShowCustomDialog<TVeiwModel>(TVeiwModel vm);
-       
+
 
 }
-public partial class UserInfoDialog : Window 
+public partial class UserInfoDialog : Window
 {
     public UserInfo Result { get; private set; }
 
@@ -56,14 +42,14 @@ public partial class UserInfoDialog : Window
 
     private void ConfirmButton_Click(object sender, RoutedEventArgs e)
     {
-        Result = new UserInfo(NameTextBox.Text, AccountTextBox.Text, PasswordTextBox.Text);
+        Result = new UserInfo(NameTextBox.Text, AccountTextBox.Text, PasswordTextBox.Text, this.DefaultName);
         DialogResult = true;
 
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e)
     {
-        Result = new UserInfo(DefaultName, "", "");
+        Result = new UserInfo(this.DefaultName, "", "", this.DefaultName);
         DialogResult = false;
     }
 }

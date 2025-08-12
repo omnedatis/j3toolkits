@@ -1,20 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.VisualBasic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using wzd32.Resources;
 
 namespace wzd32.Controls
 {
@@ -34,11 +20,11 @@ namespace wzd32.Controls
                 typeof(HintButton),
                 new PropertyMetadata(""));
 
-            public string ButtonText
-            {
-                get => (string)GetValue(ButtonTextProperty);
-                set => SetValue(ButtonTextProperty, value);
-            }
+        public string ButtonText
+        {
+            get => (string)GetValue(ButtonTextProperty);
+            set => SetValue(ButtonTextProperty, value);
+        }
 
         // 2) Set binding to a command
         public static readonly DependencyProperty CommandProperty =
@@ -50,9 +36,9 @@ namespace wzd32.Controls
 
         public ICommand Command
         {
-                get => (ICommand)GetValue(CommandProperty);
-                set => SetValue(CommandProperty, value);
-            }
+            get => (ICommand)GetValue(CommandProperty);
+            set => SetValue(CommandProperty, value);
+        }
 
         // 3) Set the hint text
         public static readonly DependencyProperty HintTextProperty =
@@ -61,12 +47,16 @@ namespace wzd32.Controls
                 typeof(string),
                 typeof(HintButton),
                 new PropertyMetadata(""));
-     
+
         public string HintText
-            {
-                get => (string)GetValue(HintTextProperty);
-                set => SetValue(HintTextProperty, value);
-            }
-        
+        {
+            get => (string)GetValue(HintTextProperty);
+            set => SetValue(HintTextProperty, value);
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

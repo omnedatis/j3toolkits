@@ -5,38 +5,46 @@
     xmlns:ctrl="clr-namespace:wzd32.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Name="root"
     d:DesignHeight="200"
     d:DesignWidth="200"
+    ClipToBounds="False"
     mc:Ignorable="d">
+    <!--  使用 DockPanel 作為根容器  -->
     <Grid ClipToBounds="False">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition Height="2*" />
+        </Grid.RowDefinitions>
         <Button
             Grid.Row="0"
-            Grid.Column="0"
-            Width="Auto"
-            Height="Auto"
-            MaxWidth="50"
-            MaxHeight="50"
-            HorizontalAlignment="Center"
+            Grid.RowSpan="4"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
             VerticalAlignment="Center"
-            d:Content="測試"
-            ClipToBounds="False"
-            Command="{Binding Command, RelativeSource={RelativeSource AncestorType=UserControl}}"
-            Content="{Binding ButtonText, RelativeSource={RelativeSource AncestorType=UserControl}}"
-            Style="{DynamicResource {x:Type Button}}" />
+            Panel.ZIndex="1"
+            d:Content="按鈕"
+            Click="Button_Click"
+            Command="{Binding Command, ElementName=root}"
+            Content="{Binding ButtonText, ElementName=root}" />
         <TextBlock
-            Width="Auto"
-            Height="Auto"
-            MinWidth="50"
-            MaxHeight="50"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Center"
-            Panel.ZIndex="10"
-            d:Text="This is a hint message"
-            ClipToBounds="False"
-            FontStyle="Italic"
-            Foreground="#FF656669"
+            Grid.Row="3"
+            Grid.Column="1"
+            Grid.ColumnSpan="1"
+            HorizontalAlignment="Center"
+            d:Text="This is a hints"
+            FontSize="10"
+            Foreground="#ff959595"
             Text="{Binding HintText, RelativeSource={RelativeSource AncestorType=UserControl}}"
-            TextAlignment="Left"
-            TextWrapping="NoWrap" />
+            TextWrapping="Wrap" />
     </Grid>
+
 </UserControl>

@@ -6,8 +6,8 @@
     xmlns:local="clr-namespace:wzd32.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="模擬器精靈"
-    Width="800"
-    Height="600"
+    Width="880"
+    Height="660"
     Icon="/Assets/bentlyw.ico"
     mc:Ignorable="d">
 

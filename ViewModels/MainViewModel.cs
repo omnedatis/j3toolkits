@@ -2,22 +2,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.Mvvm.Messaging.Messages;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Buffers;
+using Serilog.Formatting.Json;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Printing;
+using System.Runtime.Serialization;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Text.Json;
 using System.Windows;
-using System.Windows.Media.Media3D;
-using System.Windows.Resources;
+using System.Windows.Media.Animation;
+//using System.Windows.Shapes;
 using wzd32.Services;
 
 
@@ -25,21 +21,24 @@ namespace wzd32.ViewModels;
 
 public partial class MainViewModel : ObservableRecipient
 {
-
     private const string ConfigPath = "config.json";
-
-
+        
     private static readonly UserConfig Config;
 
     static MainViewModel()
     {
         string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigPath);
-        if (!File.Exists(path))
-        {
-            throw new FileNotFoundException("Configuration file not found at config.json");
 
+
+        string RawText;
+        try
+        {
+            RawText = File.ReadAllText(path, Encoding.UTF8);
         }
-        string RawText = File.ReadAllText(path, Encoding.UTF8);
+        catch (Exception ex)
+        {
+            throw new FileNotFoundException("Configuration file not found at config.json", ex);
+        }
         UserConfig userConfig;
         try
         {
@@ -49,13 +48,20 @@ public partial class MainViewModel : ObservableRecipient
         {
             throw new FileFormatException("Invalid configuration file format", ex);
         }
-        List<string> sources = userConfig.Sources;
-        bool bsources = IsNotNullOrEmpty(sources);
-        string name = userConfig.Name;
-        bool bname = IsNotNullOrEmpty(name);
-        if ((bname && bsources) != true)
+        try
         {
-            throw new InvalidCastException("Invalid configuration in file.");
+            List<string> sources = userConfig.Sources;
+            bool bsources = IsNotNullOrEmpty(sources);
+            string name = userConfig.Name;
+            bool bname = IsNotNullOrEmpty(name);
+            if (( bname && bsources ) != true)
+            {
+                throw new InvalidDataException("Invalid configuration in file.");
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new FileFormatException("Invalid configuration file format", ex);
         }
         Config = userConfig!;
 
@@ -68,37 +74,45 @@ public partial class MainViewModel : ObservableRecipient
                .GetIsInDesignMode(new DependencyObject());
 
         if (isInDesignMode)
-            LoadDesignData();
+            ReadDesignData();
         else
-            LoadRealData();
+            ReadData();
         // for messenger
         IsActive = true;
 
     }
 
     [ObservableProperty]
-    private DateTime? lastModifyTime = null;
-
-    
-    [ObservableProperty]
     private DateTime? lastModifyDT = null;
 
     [ObservableProperty]
     private ObservableCollection<UserInfo> userInfoList = new();
 
-
-    private void LoadRealData()
+    [RelayCommand]
+    private void ReadData()
     {
+        //D
+        string fullpath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "user.json");
+        if (!File.Exists(fullpath))
+            return;
+        FileReadResult resp = WeakReferenceMessenger.Default.Send(new FileReadMessage(fullpath));
+        var formatter = new JsonFormatter<List<UserInfoMap>>();
+        List<UserInfoMap> data = formatter.Parse(resp.Content);
+        //D
+        UserInfoList = new ObservableCollection<UserInfo>();
+        foreach (UserInfoMap item in data)
+        {
 
-        // ... 實際可改成非同步呼叫 Service
+            UserInfoList.Add(item.ToRecord());
+        }
+
     }
-
-    private void LoadDesignData()
+    private void ReadDesignData()
     {
 
-        // mock data for design time
-        UserInfoList.Add(new UserInfo("DesignAlice", "alice@fake.com", "abcd"));
-        UserInfoList.Add(new UserInfo("DesignBob", "bob@fake.com", "1234"));
+        // mock data at design time
+        UserInfoList.Add(new UserInfo("DesignAlice", "alice@fake.com", "abcd", "path/abbc"));
+        UserInfoList.Add(new UserInfo("DesignBob", "bob@fake.com", "1234", "path/cdf"));
         OnPropertyChanged(nameof(UserInfoList));
     }
 
@@ -107,53 +121,84 @@ public partial class MainViewModel : ObservableRecipient
     {
         LastModifyDT = DateTime.Now;
         var result = MessageBox.Show("是否使用預設值？", "Hint", MessageBoxButton.YesNo, MessageBoxImage.Question);
-        
+
         if (result == MessageBoxResult.Yes)
-            ApplyUserInfo(true);
+            ParseUserInfo(true);
         else
-            ApplyUserInfo(false);
-        
-
-
+            ParseUserInfo(false);
 
     }
-    [RelayCommand]  
+
+    [RelayCommand]
     public void Test()
     {
         MessageBox.Show("this is a test", "hint", MessageBoxButton.OKCancel, 0);
     }
 
-    public void ApplyUserInfo(bool IsDefault=false)
+    public void ParseUserInfo(bool IsDefault = false)
     {
 
-
+        List<UserInfoMap> data = [];
         UserInfoList.Clear();
         foreach (string src in Config.Sources)
         {
             foreach (var dir in Directory.GetDirectories(src)
-                .Where(x => (IsNotNullOrEmpty(x) && x.Contains(Config.Name))))
+                .Where(x => ( IsNotNullOrEmpty(x) && x.Contains(Config.Name) )))
             {
-                
+
                 var req = new RequestUserInfoDialogMessage(dir);
 
                 UserInfo userInfo;
-                // 2. Send<TReq, TResp> 同步呼叫，直接拿到 UserInfo
+
                 if (IsDefault == true)
-                {
-                    userInfo = new UserInfo(dir, "", "");
-                } else {
+                    userInfo = new UserInfo(dir, "", "", dir);
+
+                else
+
                     userInfo = WeakReferenceMessenger.Default.Send(req);
-                }
+                    userInfo = userInfo ?? new UserInfo(dir, "", "", dir);
 
-                    
-                Debug.WriteLine(userInfo);
-                // 3. 加到暫存清單
+
+        
                 UserInfoList.Add(userInfo);
-
+                data.Add(userInfo.ToDict());
             }
             ;
-        };
+            JsonFormatter<List<UserInfoMap>> formatter = new JsonFormatter<List<UserInfoMap>>();
+            WriteData<List<UserInfoMap>>(formatter, data, "user");
+
+        }
+        ;
     }
+    private void WriteData<TData>(IFileFormatter<TData> formatter, TData data, string name)
+    {
+        var fullpath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,$"{name}{formatter.Extension}");
+        var content = formatter.Format(data);
+
+        FileWriteResult result = WeakReferenceMessenger.Default
+                     .Send(new FileWriteMessage(fullpath, content));
+
+    }
+    [RelayCommand]
+    private void WriteData()
+    {
+        var result = MessageBox.Show("確認後將複寫歷史註冊檔案，確定儲存?", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+        if (result != MessageBoxResult.OK)
+            return;
+        List<UserInfoMap> data = [];
+        foreach (UserInfo item in UserInfoList)
+        {
+            data.Add(item.ToDict());
+        }
+        var fullpath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "user.json");
+        JsonFormatter<List<UserInfoMap>> formatter = new JsonFormatter<List<UserInfoMap>>();
+        var content = formatter.Format(data);
+        WeakReferenceMessenger.Default.Send(new FileWriteMessage(fullpath, content));
+    }
+
+
+
+
     private static bool IsNotNullOrEmpty<T>(IEnumerable<T> target)
     {
         return target != null && target.Any();
@@ -161,4 +206,68 @@ public partial class MainViewModel : ObservableRecipient
 }
 internal record UserConfig(string Name, List<string> Sources);
 
-public record UserInfo(string Name, string Account, string Password, string? GID=null, int? Server=null, int? Role=null);
+public record UserInfo(string Name, string Account, string Password, string PID, int? Server = null, int? Role = null)
+{
+    public UserInfoMap ToDict()
+    {
+
+        var innerDict = new Dictionary<string, string>
+        {
+            [nameof(Name)] = Name,
+            [nameof(Account)] = Account,
+            [nameof(Password)] = Password,
+            [nameof(Server)] = Server?.ToString() ?? string.Empty,
+            [nameof(Role)] = Role?.ToString() ?? string.Empty
+        };
+
+        return new UserInfoMap(Name, Account, Password, PID, Server, Role)
+        {
+            [ PID ] = innerDict,
+        };
+    }
+
+}
+
+public class UserInfoMap : Dictionary<string, Dictionary<string, string>>
+{
+
+    public UserInfoMap() : base()
+    {
+    }
+    public UserInfoMap(
+        string Name,
+        string Account,
+        string Password,
+        string PID,
+        int? Server = null,
+        int? Role = null)
+    {
+        var innerdict = new Dictionary<string, string>
+        {
+            [nameof(Name)] = Name,
+            [nameof(Account)] = Account,
+            [nameof(Password)] = Password,
+            [nameof(Server)] = Server?.ToString() ?? string.Empty,
+            [nameof(Role)] = Role?.ToString() ?? string.Empty
+        };
+
+        // 因為這個類別繼承 Dictionary，所以可以直接用 this 當作外層字典
+        this [ PID ] = innerdict;
+    }
+
+    public UserInfo ToRecord()
+    {
+
+        var kvp = this.First(); // kvp.Key = PID, kvp.Value = inner dictionary
+        var inner = kvp.Value;
+
+        return new UserInfo(
+            Name: inner [ nameof(UserInfo.Name) ],
+            Account: inner [ nameof(UserInfo.Account) ],
+            Password: inner [ nameof(UserInfo.Password) ],
+            PID: kvp.Key,
+            Server: string.IsNullOrEmpty(inner [ nameof(UserInfo.Server) ]) ? null : int.Parse(inner [ nameof(UserInfo.Server) ]),
+            Role: string.IsNullOrEmpty(inner [ nameof(UserInfo.Role) ]) ? null : int.Parse(inner [ nameof(UserInfo.Role) ])
+        );
+    }
+}

@@ -1,9 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.Mvvm.Messaging.Messages;
-using Newtonsoft.Json.Linq;
-using System.IO;
-using System.Text;
-using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using wzd32.Controls;
@@ -25,8 +20,8 @@ public partial class MainPage : Page
         this.Unloaded += OnPageUnloaded;
 
     }
-    
-  
+
+
     private void OnPageLoaded(object sender, RoutedEventArgs e)
     {
         WeakReferenceMessenger.Default.Register<OpenUserInfoDialogMessage>(
@@ -59,17 +54,14 @@ public partial class MainPage : Page
         };
         dlg.Left = owner.Left + 50;
         dlg.Top = owner.Top + 30;
+        var ret= dlg.ShowDialog();
+        return dlg.Result;
 
-        bool? result = dlg.ShowDialog();
-        if (result == true && dlg.Result != null)
-            return dlg.Result;
-        else
-            return new UserInfo("取消", "", "");
     }
     // wrapper
     private void HandleOpenUserInfoDialog(object recipient, OpenUserInfoDialogMessage msg)
     {
-        
+
         _ = ShowUserInfoDialog(msg.Path);
     }
 

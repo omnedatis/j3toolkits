@@ -1,19 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace wzd32.Services;
 
 // Error hander signature
-public interface IErrorHandler 
+public interface IErrorHandler
 {
     void HandleError(ErrorInfo info);
 }
 
-    public class ErrorHandler : IErrorHandler
+public class ErrorHandler : IErrorHandler
 {
     public void HandleError(ErrorInfo info)
     {
@@ -42,36 +37,36 @@ public interface IErrorHandler
     }
 }
 
-    public enum ErrorType
+public enum ErrorType
+{
+    warning,
+    error,
+    critical, s
+}
+public class ErrorInfo
+{
+    public ErrorType Type { get; set; }
+    public string Message { get; set; }
+    public Exception? Exception { get; set; }
+    public ErrorInfo(ErrorType type, string message, Exception? exception = null)
     {
-        warning,
-        error,
-        critical,s
+        Type = type;
+        Message = message;
+        Exception = exception;
     }
-    public class ErrorInfo
-    {
-        public ErrorType Type { get; set; }
-        public string Message { get; set; }
-        public Exception? Exception { get; set; }
-        public ErrorInfo(ErrorType type, string message, Exception? exception = null)
-        {
-            Type = type;
-            Message = message;
-            Exception = exception;
-        }
-    }
+}
 
-    internal class LoggerProvidrer
-    { 
-     private readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder
-                .SetMinimumLevel(LogLevel.Debug)
-                .AddDebug();
-                
-        });
-        public ILogger<T> CreateLogger<T>()
-        {
-            return _loggerFactory.CreateLogger<T>();
+internal class LoggerProvidrer
+{
+    private readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
+       {
+           builder
+               .SetMinimumLevel(LogLevel.Debug)
+               .AddDebug();
+
+       });
+    public ILogger<T> CreateLogger<T>()
+    {
+        return _loggerFactory.CreateLogger<T>();
     }
 }

@@ -5,7 +5,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!--  Primary Palette  -->
-    <Color x:Key="PrimaryColor">#FF0066CC</Color>
+    <Color x:Key="PrimaryColor">#CC4d4d4d</Color>
     <Color x:Key="SecondaryColor">#FF00CC99</Color>
     <Color x:Key="AccentColor">#FFFFC107</Color>
 
