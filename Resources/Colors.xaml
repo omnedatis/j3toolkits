@@ -26,5 +26,5 @@
     <SolidColorBrush x:Key="ControlBrush" Color="{StaticResource DarkControl}" />
     <SolidColorBrush x:Key="PanelBrush" Color="{StaticResource DarkPanel}" />
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource DarkBorder}" />
-    <SolidColorBrush x:Key="FormBrush" Color="{StaticResource LightForeground}" />
+    <SolidColorBrush x:Key="MouseOverBrush" Color="{StaticResource LightForeground}" />
 </ResourceDictionary>

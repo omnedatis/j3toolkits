@@ -27,8 +27,7 @@
         <Button
             Grid.Row="0"
             Grid.RowSpan="4"
-            Grid.Column="1"
-            Grid.ColumnSpan="2"
+            Grid.ColumnSpan="4"
             VerticalAlignment="Center"
             Panel.ZIndex="1"
             d:Content="按鈕"

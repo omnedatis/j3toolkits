@@ -5,6 +5,7 @@
     xmlns:ctrl="clr-namespace:wzd32.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:utils="clr-namespace:wzd32.Utils"
     xmlns:vm="clr-namespace:wzd32.ViewModels"
     Title="模擬器精靈"
     MinWidth="800"
@@ -15,6 +16,7 @@
     </Page.DataContext>
 
     <Page.Resources>
+
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/wzd32;component/Resources/Dictionary.xaml" />
@@ -52,7 +54,7 @@
                 </Border>
                 <ControlTemplate.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter TargetName="Bd" Property="Background" Value="{StaticResource PrimaryBrush}" />
+                        <Setter TargetName="Bd" Property="Background" Value="{StaticResource MouseOverBrush}" />
                     </Trigger>
                     <Trigger Property="IsPressed" Value="True">
                         <Setter TargetName="Bd" Property="Opacity" Value="0.9" />
@@ -72,12 +74,12 @@
                 <Setter Property="Template" Value="{StaticResource ActionControlTemplate}" />
                 <!--  針對 Button 可再加些預設值，例如 MinWidth/MinHeight  -->
                 <Setter Property="MinWidth" Value="60" />
-                <Setter Property="MinHeight" Value="30" />
+                <Setter Property="MaxHeight" Value="40" />
                 <Setter Property="HorizontalContentAlignment" Value="Center" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
             </Style>
 
-
+            <utils:MaskMiddleConverter x:Key="MaskMiddleConverter" />
         </ResourceDictionary>
 
     </Page.Resources>
@@ -161,7 +163,7 @@
                 Grid.Column="0"
                 Width="700"
                 HorizontalAlignment="Right"
-                VerticalAlignment="Center"
+                VerticalAlignment="Top"
                 FlowDirection="RightToLeft"
                 Orientation="Horizontal">
                 <Button
@@ -181,11 +183,10 @@
             <DataGrid
                 x:Name="UserInfo"
                 Grid.Row="1"
-                Grid.Column="0"
                 MinWidth="600"
                 MaxHeight="350"
                 Margin="20,0,20,0"
-                AutoGenerateColumns="True"
+                AutoGenerateColumns="False"
                 Background="#FFC7C7C7"
                 BorderBrush="#FF383838"
                 ClipToBounds="False"
@@ -195,7 +196,65 @@
                 ItemsSource="{Binding UserInfoList}"
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.VerticalScrollBarVisibility="Visible"
-                SelectionChanged="UserInfo_SelectionChanged" />
+                SelectionChanged="UserInfo_SelectionChanged">
+                <DataGrid.Columns>
+                    <!--  Name  -->
+                    <DataGridTextColumn Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="Name" />
+
+                    <!--  Account  -->
+                    <DataGridTextColumn Binding="{Binding Account, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="Account" />
+
+                    <!--  Password  -->
+                    <DataGridTextColumn Header="Password" IsReadOnly="True">
+                        <DataGridTextColumn.Binding>
+                            <Binding
+                                Converter="{StaticResource MaskMiddleConverter}"
+                                ConverterParameter="2,1,x"
+                                Mode="OneWay"
+                                Path="Password" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+
+                    <!--  PID  -->
+                    <DataGridTextColumn Binding="{Binding PID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="PID" />
+
+                    <!--  Server  -->
+                    <DataGridTemplateColumn Header="Server">
+                        <!--  顯示模式  -->
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Server}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+
+                        <!--  編輯模式  -->
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <TextBox utils:TextBoxDigitsBehavior.Enabled="True">
+                                    <TextBox.Text>
+                                        <Binding
+                                            FallbackValue=""
+                                            Mode="TwoWay"
+                                            Path="Server"
+                                            TargetNullValue=""
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <!--  允許空白（=> null），否則必須能 Parse 成 int  -->
+                                                <utils:IntNullableValidationRule />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+
+
+                    <!--  Role  -->
+                    <DataGridTextColumn Binding="{Binding Role, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="Role" />
+
+                </DataGrid.Columns>
+            </DataGrid>
             <StackPanel
                 Grid.Row="2"
                 Grid.Column="0"

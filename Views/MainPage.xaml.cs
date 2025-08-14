@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using wzd32.Controls;
 using wzd32.Services;
 using wzd32.ViewModels;
@@ -54,7 +56,7 @@ public partial class MainPage : Page
         };
         dlg.Left = owner.Left + 50;
         dlg.Top = owner.Top + 30;
-        var ret= dlg.ShowDialog();
+        var ret = dlg.ShowDialog();
         return dlg.Result;
 
     }
@@ -65,6 +67,28 @@ public partial class MainPage : Page
         _ = ShowUserInfoDialog(msg.Path);
     }
 
+    private static readonly Regex DigitsOnlyRegex = new(@"^\d*$", RegexOptions.Compiled);
+
+    public static void OnPreviewTextInputDigitsOnly(object sender, TextCompositionEventArgs e)
+    {
+        // 允許空與純數字
+        e.Handled = !DigitsOnlyRegex.IsMatch(e.Text);
+    }
+
+    public static void OnPasteDigitsOnly(object sender, DataObjectPastingEventArgs e)
+    {
+        if (!e.DataObject.GetDataPresent(DataFormats.Text))
+        {
+            e.CancelCommand();
+            return;
+        }
+
+        var text = e.DataObject.GetData(DataFormats.Text) as string ?? string.Empty;
+        if (!DigitsOnlyRegex.IsMatch(text))
+        {
+            e.CancelCommand();
+        }
+    }
     private void UserInfo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
 

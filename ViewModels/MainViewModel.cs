@@ -3,17 +3,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Newtonsoft.Json;
-using Serilog.Formatting.Json;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
+using System.Data;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Windows;
-using System.Windows.Media.Animation;
-//using System.Windows.Shapes;
 using wzd32.Services;
 
 
@@ -22,7 +17,7 @@ namespace wzd32.ViewModels;
 public partial class MainViewModel : ObservableRecipient
 {
     private const string ConfigPath = "config.json";
-        
+
     private static readonly UserConfig Config;
 
     static MainViewModel()
@@ -54,7 +49,7 @@ public partial class MainViewModel : ObservableRecipient
             bool bsources = IsNotNullOrEmpty(sources);
             string name = userConfig.Name;
             bool bname = IsNotNullOrEmpty(name);
-            if (( bname && bsources ) != true)
+            if ((bname && bsources) != true)
             {
                 throw new InvalidDataException("Invalid configuration in file.");
             }
@@ -99,12 +94,14 @@ public partial class MainViewModel : ObservableRecipient
         var formatter = new JsonFormatter<List<UserInfoMap>>();
         List<UserInfoMap> data = formatter.Parse(resp.Content);
         //D
-        UserInfoList = new ObservableCollection<UserInfo>();
-        foreach (UserInfoMap item in data)
+        Application.Current.Dispatcher.Invoke(() =>
         {
-
-            UserInfoList.Add(item.ToRecord());
-        }
+            UserInfoList.Clear();
+            foreach (UserInfoMap item in data)
+            {
+                UserInfoList.Add(item.ToRecord());
+            }
+        });
 
     }
     private void ReadDesignData()
@@ -138,12 +135,15 @@ public partial class MainViewModel : ObservableRecipient
     public void ParseUserInfo(bool IsDefault = false)
     {
 
-        List<UserInfoMap> data = [];
-        UserInfoList.Clear();
+        List<UserInfoMap> data = new List<UserInfoMap>();
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            UserInfoList.Clear();
+        });
         foreach (string src in Config.Sources)
         {
             foreach (var dir in Directory.GetDirectories(src)
-                .Where(x => ( IsNotNullOrEmpty(x) && x.Contains(Config.Name) )))
+                .Where(x => (IsNotNullOrEmpty(x) && x.Contains(Config.Name))))
             {
 
                 var req = new RequestUserInfoDialogMessage(dir);
@@ -156,11 +156,14 @@ public partial class MainViewModel : ObservableRecipient
                 else
 
                     userInfo = WeakReferenceMessenger.Default.Send(req);
-                    userInfo = userInfo ?? new UserInfo(dir, "", "", dir);
+                userInfo = userInfo ?? new UserInfo(dir, "", "", dir);
 
 
-        
-                UserInfoList.Add(userInfo);
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    UserInfoList.Add(userInfo);
+                });
+
                 data.Add(userInfo.ToDict());
             }
             ;
@@ -172,7 +175,7 @@ public partial class MainViewModel : ObservableRecipient
     }
     private void WriteData<TData>(IFileFormatter<TData> formatter, TData data, string name)
     {
-        var fullpath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,$"{name}{formatter.Extension}");
+        var fullpath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{name}{formatter.Extension}");
         var content = formatter.Format(data);
 
         FileWriteResult result = WeakReferenceMessenger.Default
@@ -206,8 +209,42 @@ public partial class MainViewModel : ObservableRecipient
 }
 internal record UserConfig(string Name, List<string> Sources);
 
-public record UserInfo(string Name, string Account, string Password, string PID, int? Server = null, int? Role = null)
+public partial class UserInfo : ObservableObject
 {
+    // 使用 CommunityToolkit 的 source-generator 產生屬性與 PropertyChanged
+    // 產生的屬性為: Name, Account, Password, PID, Server, Role
+    [ObservableProperty]
+    private string name;
+
+    [ObservableProperty]
+    private string account;
+
+    [ObservableProperty]
+    private string password;
+
+    [ObservableProperty]
+    private string pid;
+
+    [ObservableProperty]
+    private int? server;
+
+    [ObservableProperty]
+    private int? role;
+
+    // 保留與原本相容的建構子（原先呼叫 new UserInfo("Name", "acc", "pwd", "pid")）
+    public UserInfo(string name, string account, string password, string pid, int? server = null, int? role = null)
+    {
+        // 直接設定自動產生的屬性（會自動觸發 OnPropertyChanged）
+        Name = name;
+        Account = account;
+        Password = password;
+        Pid = pid;
+        Server = server;
+        Role = role;
+    }
+
+    // 空的預設建構子（保持靈活性 / JSON 反序列化）
+    public UserInfo() { }
     public UserInfoMap ToDict()
     {
 
@@ -220,9 +257,9 @@ public record UserInfo(string Name, string Account, string Password, string PID,
             [nameof(Role)] = Role?.ToString() ?? string.Empty
         };
 
-        return new UserInfoMap(Name, Account, Password, PID, Server, Role)
+        return new UserInfoMap(Name, Account, Password, Pid, Server, Role)
         {
-            [ PID ] = innerDict,
+            [Pid] = innerDict,
         };
     }
 
@@ -252,7 +289,7 @@ public class UserInfoMap : Dictionary<string, Dictionary<string, string>>
         };
 
         // 因為這個類別繼承 Dictionary，所以可以直接用 this 當作外層字典
-        this [ PID ] = innerdict;
+        this[PID] = innerdict;
     }
 
     public UserInfo ToRecord()
@@ -262,12 +299,12 @@ public class UserInfoMap : Dictionary<string, Dictionary<string, string>>
         var inner = kvp.Value;
 
         return new UserInfo(
-            Name: inner [ nameof(UserInfo.Name) ],
-            Account: inner [ nameof(UserInfo.Account) ],
-            Password: inner [ nameof(UserInfo.Password) ],
-            PID: kvp.Key,
-            Server: string.IsNullOrEmpty(inner [ nameof(UserInfo.Server) ]) ? null : int.Parse(inner [ nameof(UserInfo.Server) ]),
-            Role: string.IsNullOrEmpty(inner [ nameof(UserInfo.Role) ]) ? null : int.Parse(inner [ nameof(UserInfo.Role) ])
+            name: inner[nameof(UserInfo.Name)],
+            account: inner[nameof(UserInfo.Account)],
+            password: inner[nameof(UserInfo.Password)],
+            pid: kvp.Key,
+            server: string.IsNullOrEmpty(inner[nameof(UserInfo.Server)]) ? null : int.Parse(inner[nameof(UserInfo.Server)]),
+            role: string.IsNullOrEmpty(inner[nameof(UserInfo.Role)]) ? null : int.Parse(inner[nameof(UserInfo.Role)])
         );
     }
 }

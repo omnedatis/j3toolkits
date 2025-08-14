@@ -1,7 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using System.Text;
-using System.Windows;
-using wzd32.Services;
+﻿using System.Windows;
 
 namespace wzd32.Views;
 

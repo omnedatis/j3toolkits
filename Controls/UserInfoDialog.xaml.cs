@@ -7,7 +7,7 @@ namespace wzd32.Controls;
 /// </summary>
 public interface IUserInfoDialog
 {
-    bool ShowCustomDialog<TVeiwModel>(TVeiwModel vm);
+    bool ShowCustomDialog<TViewModel>(TViewModel vm);
 
 
 }
