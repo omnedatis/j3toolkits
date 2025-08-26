@@ -9,6 +9,7 @@ using System.Data;
 using System.IO;
 using System.Text;
 using System.Windows;
+using System.Windows.Documents;
 using wzd32.Services;
 
 
@@ -121,8 +122,10 @@ public partial class MainViewModel : ObservableRecipient
 
         if (result == MessageBoxResult.Yes)
             ParseUserInfo(true);
-        else
+        else if (result == MessageBoxResult.No)
             ParseUserInfo(false);
+        else
+            return;
 
     }
 
@@ -134,8 +137,6 @@ public partial class MainViewModel : ObservableRecipient
 
     public void ParseUserInfo(bool IsDefault = false)
     {
-
-        List<UserInfoMap> data = new List<UserInfoMap>();
         Application.Current.Dispatcher.Invoke(() =>
         {
             UserInfoList.Clear();
@@ -163,25 +164,12 @@ public partial class MainViewModel : ObservableRecipient
                 {
                     UserInfoList.Add(userInfo);
                 });
-
-                data.Add(userInfo.ToDict());
-            }
-            ;
-            JsonFormatter<List<UserInfoMap>> formatter = new JsonFormatter<List<UserInfoMap>>();
-            WriteData<List<UserInfoMap>>(formatter, data, "user");
+            };
 
         }
         ;
     }
-    private void WriteData<TData>(IFileFormatter<TData> formatter, TData data, string name)
-    {
-        var fullpath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{name}{formatter.Extension}");
-        var content = formatter.Format(data);
 
-        FileWriteResult result = WeakReferenceMessenger.Default
-                     .Send(new FileWriteMessage(fullpath, content));
-
-    }
     [RelayCommand]
     private void WriteData()
     {
@@ -206,7 +194,17 @@ public partial class MainViewModel : ObservableRecipient
     {
         return target != null && target.Any();
     }
+
+    public IReadOnlyList<RoleOption> RoleOptions { get; } =
+    [
+        new RoleOption(0, "隊長"),
+        new RoleOption(1, "隊員"),
+        new RoleOption(2, "自動"),
+    ];
 }
+
+public sealed record RoleOption(int Role, string Name);
+
 internal record UserConfig(string Name, List<string> Sources);
 
 public partial class UserInfo : ObservableObject
@@ -223,6 +221,9 @@ public partial class UserInfo : ObservableObject
     private string password;
 
     [ObservableProperty]
+    private bool isRun;
+
+    [ObservableProperty]
     private string pid;
 
     [ObservableProperty]
@@ -231,8 +232,9 @@ public partial class UserInfo : ObservableObject
     [ObservableProperty]
     private int? role;
 
-    // 保留與原本相容的建構子（原先呼叫 new UserInfo("Name", "acc", "pwd", "pid")）
-    public UserInfo(string name, string account, string password, string pid, int? server = null, int? role = null)
+
+
+    public UserInfo(string name, string account, string password, string pid, int? server = null, int? role = null, bool isRun = false)
     {
         // 直接設定自動產生的屬性（會自動觸發 OnPropertyChanged）
         Name = name;
@@ -241,20 +243,22 @@ public partial class UserInfo : ObservableObject
         Pid = pid;
         Server = server;
         Role = role;
+        IsRun = isRun;
     }
 
     // 空的預設建構子（保持靈活性 / JSON 反序列化）
     public UserInfo() { }
+    // Add a comma after the Role property assignment and add IsExecute to the innerDict in UserInfo.ToDict()
     public UserInfoMap ToDict()
     {
-
         var innerDict = new Dictionary<string, string>
         {
             [nameof(Name)] = Name,
             [nameof(Account)] = Account,
             [nameof(Password)] = Password,
             [nameof(Server)] = Server?.ToString() ?? string.Empty,
-            [nameof(Role)] = Role?.ToString() ?? string.Empty
+            [nameof(Role)] = Role?.ToString() ?? string.Empty,
+            [nameof(IsRun)] = IsRun.ToString()
         };
 
         return new UserInfoMap(Name, Account, Password, Pid, Server, Role)
@@ -277,7 +281,8 @@ public class UserInfoMap : Dictionary<string, Dictionary<string, string>>
         string Password,
         string PID,
         int? Server = null,
-        int? Role = null)
+        int? Role = null,
+        bool IsRun = false)
     {
         var innerdict = new Dictionary<string, string>
         {
@@ -285,7 +290,8 @@ public class UserInfoMap : Dictionary<string, Dictionary<string, string>>
             [nameof(Account)] = Account,
             [nameof(Password)] = Password,
             [nameof(Server)] = Server?.ToString() ?? string.Empty,
-            [nameof(Role)] = Role?.ToString() ?? string.Empty
+            [nameof(Role)] = Role?.ToString() ?? string.Empty, 
+            [nameof(IsRun)] = IsRun.ToString()
         };
 
         // 因為這個類別繼承 Dictionary，所以可以直接用 this 當作外層字典
@@ -304,7 +310,8 @@ public class UserInfoMap : Dictionary<string, Dictionary<string, string>>
             password: inner[nameof(UserInfo.Password)],
             pid: kvp.Key,
             server: string.IsNullOrEmpty(inner[nameof(UserInfo.Server)]) ? null : int.Parse(inner[nameof(UserInfo.Server)]),
-            role: string.IsNullOrEmpty(inner[nameof(UserInfo.Role)]) ? null : int.Parse(inner[nameof(UserInfo.Role)])
+            role: string.IsNullOrEmpty(inner[nameof(UserInfo.Role)]) ? null : int.Parse(inner[nameof(UserInfo.Role)]),
+            isRun: bool.Parse(inner[nameof(UserInfo.IsRun)])
         );
     }
 }

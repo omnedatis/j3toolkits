@@ -19,12 +19,12 @@
     <Color x:Key="LightForeground">#FF656669</Color>
 
     <!--  Brushes  -->
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource LightForeground}" />
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}" />
     <SolidColorBrush x:Key="TextBrush" Color="{StaticResource DarkForeground}" />
     <SolidColorBrush x:Key="TransparentBrush" Color="{StaticResource Transparent}" />
     <SolidColorBrush x:Key="ControlBrush" Color="{StaticResource DarkControl}" />
     <SolidColorBrush x:Key="PanelBrush" Color="{StaticResource DarkPanel}" />
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource DarkBorder}" />
-    <SolidColorBrush x:Key="MouseOverBrush" Color="{StaticResource LightForeground}" />
+    <SolidColorBrush x:Key="MouseOverBrush" Color="{StaticResource PrimaryColor}" />
 </ResourceDictionary>

@@ -14,7 +14,7 @@ public class MaskMiddleConverter : IValueConverter
         // defaults
         int keepFirst = 2;
         int keepLast = 1;
-        char mask = 'x';
+        char mask = '*';
 
         if (parameter is string p)
         {

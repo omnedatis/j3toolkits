@@ -73,7 +73,7 @@
             Grid.ColumnSpan="1"
             Height="20"
             VerticalAlignment="Center"
-            Foreground="{StaticResource FormBrush}"
+            Foreground="{StaticResource PrimaryBrush}"
             Text=""
             TextChanged="NameTextBox_TextChanged" />
         <TextBlock
@@ -89,7 +89,7 @@
             Grid.ColumnSpan="1"
             VerticalAlignment="Center"
             d:Text=""
-            Foreground="{StaticResource FormBrush}"
+            Foreground="{StaticResource PrimaryBrush}"
             TextChanged="AccountTextBox_TextChanged" />
         <TextBlock
             Grid.Row="3"
@@ -105,7 +105,7 @@
             Height="20"
             VerticalAlignment="Center"
             ClipToBounds="False"
-            Foreground="{StaticResource FormBrush}"
+            Foreground="{StaticResource PrimaryBrush}"
             Text=""
             TextChanged="PasswordTextBox_TextChanged" />
         <StackPanel

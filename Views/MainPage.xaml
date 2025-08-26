@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ctrl="clr-namespace:wzd32.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utils="clr-namespace:wzd32.Utils"
     xmlns:vm="clr-namespace:wzd32.ViewModels"
@@ -21,7 +22,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/wzd32;component/Resources/Dictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <SolidColorBrush x:Key="PrimaryBrush" Color="#FF2D8CFF" />
             <SolidColorBrush x:Key="ControlBgBrush" Color="#FFF0F0F0" />
             <SolidColorBrush x:Key="TransparentBrush" Color="Transparent" />
             <Thickness x:Key="ActionPadding">10,6</Thickness>
@@ -78,7 +78,12 @@
                 <Setter Property="HorizontalContentAlignment" Value="Center" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
             </Style>
-
+            <Style x:Key="DgCellEllipsis" TargetType="TextBlock">
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="ToolTip" Value="{Binding Name}" />
+            </Style>
             <utils:MaskMiddleConverter x:Key="MaskMiddleConverter" />
         </ResourceDictionary>
 
@@ -89,7 +94,6 @@
         Grid.ColumnSpan="2"
         MinWidth="800"
         MinHeight="600"
-        Margin="0,2,0,0"
         d:ShowGridLines="False"
         Background="{StaticResource ControlBrush}">
         <Grid.RowDefinitions>
@@ -105,7 +109,6 @@
         <Image
             x:Name="IconImage"
             Grid.Row="1"
-            Grid.RowSpan="2"
             Width="50"
             Height="50"
             MinWidth="40"
@@ -117,14 +120,16 @@
             UseLayoutRounding="True" />
         <StackPanel
             Grid.Row="2"
+            Grid.RowSpan="2"
             Grid.Column="0"
             Orientation="Vertical">
             <!--  this is a gplyh icon(can be ckicke)  -->
             <Button Margin="5">
-                <StackPanel>
+                <StackPanel d:IsHidden="True">
                     <TextBlock
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
+                        d:IsHidden="True"
                         FontFamily="{StaticResource IconFont}"
                         FontSize="14"
                         Foreground="{StaticResource TextBrush}"
@@ -132,7 +137,10 @@
 
                 </StackPanel>
             </Button>
-            <Button Margin="5" Content="使用者" />
+            <Button
+                Margin="5"
+                Click="Button_Click_1"
+                Content="使用者" />
             <Button
                 Margin="5"
                 Click="Button_Click"
@@ -145,7 +153,6 @@
             Grid.Row="1"
             Grid.RowSpan="3"
             Grid.Column="1"
-            VerticalAlignment="Stretch"
             d:ShowGridLines="False"
             Background="{StaticResource PanelBrush}"
             ClipToBounds="False">
@@ -161,27 +168,38 @@
             <StackPanel
                 Grid.Row="0"
                 Grid.Column="0"
-                Width="700"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top"
+                Width="Auto"
+                Margin="20,0,20,0"
+                VerticalAlignment="Center"
                 FlowDirection="RightToLeft"
                 Orientation="Horizontal">
-                <Button
-                    Width="100"
-                    Height="80"
-                    Command="{Binding WriteDataCommand}"
-                    Content="儲存" />
 
                 <Button
                     Width="100"
                     Height="80"
+                    d:IsHidden="True"
                     Command="{Binding ReadDataCommand}"
-                    Content="匯入" />
+                    Content="資料檔匯入" />
+                <ctrl:HintButton
+                    Width="100"
+                    Height="80"
+                    d:IsHidden="True"
+                    ButtonText="掃描匯入"
+                    ClipToBounds="False"
+                    Command="{Binding RegisterCommand}"
+                    HintText="{Binding LastModifyDT}"
+                    Loaded="HintButton_Loaded_2" />
+                <Button
+                    Width="100"
+                    Height="80"
+                    d:IsHidden="True"
+                    Command="{Binding WriteDataCommand}"
+                    Content="存檔" />
 
 
             </StackPanel>
             <DataGrid
-                x:Name="UserInfo"
+                x:Name="UserInfoGrid"
                 Grid.Row="1"
                 MinWidth="600"
                 MaxHeight="350"
@@ -199,7 +217,11 @@
                 SelectionChanged="UserInfo_SelectionChanged">
                 <DataGrid.Columns>
                     <!--  Name  -->
-                    <DataGridTextColumn Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="Name" />
+                    <DataGridTextColumn
+                        MaxWidth="100"
+                        Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        ElementStyle="{StaticResource DgCellEllipsis}"
+                        Header="Name" />
 
                     <!--  Account  -->
                     <DataGridTextColumn Binding="{Binding Account, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="Account" />
@@ -209,14 +231,14 @@
                         <DataGridTextColumn.Binding>
                             <Binding
                                 Converter="{StaticResource MaskMiddleConverter}"
-                                ConverterParameter="2,1,x"
+                                ConverterParameter="2,1,*"
                                 Mode="OneWay"
                                 Path="Password" />
                         </DataGridTextColumn.Binding>
                     </DataGridTextColumn>
 
                     <!--  PID  -->
-                    <DataGridTextColumn Binding="{Binding PID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="PID" />
+                    <DataGridTextColumn Binding="{Binding Pid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="PID" />
 
                     <!--  Server  -->
                     <DataGridTemplateColumn Header="Server">
@@ -251,33 +273,67 @@
 
 
                     <!--  Role  -->
-                    <DataGridTextColumn Binding="{Binding Role, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="Role" />
+                    <DataGridTemplateColumn
+                        Width="*"
+                        MaxWidth="50"
+                        Header="Role">
 
+                        <!--  顯示模式：用 ComboBox 當文字呈現（不可互動）  -->
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox
+                                    Padding="0"
+                                    BorderThickness="0"
+                                    Focusable="False"
+                                    IsHitTestVisible="False"
+                                    ItemsSource="{Binding DataContext.RoleOptions, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                    SelectedValue="{Binding Role, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedValuePath="Role">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+
+                        <!--  編輯模式：可下拉選擇  -->
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <ComboBox
+                                    ItemsSource="{Binding DataContext.RoleOptions, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                    SelectedValue="{Binding Role, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedValuePath="Role">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Binding="{Binding IsRun, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="IsRun" />
                 </DataGrid.Columns>
+
             </DataGrid>
             <StackPanel
                 Grid.Row="2"
                 Grid.Column="0"
                 MinWidth="700"
+                Margin="20,0,20,0"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Bottom"
+                VerticalAlignment="Center"
                 FlowDirection="RightToLeft"
                 Orientation="Horizontal">
-                <ctrl:HintButton
-                    Width="100"
-                    Height="80"
-                    ButtonText="註冊"
-                    ClipToBounds="False"
-                    Command="{Binding RegisterCommand}"
-                    HintText="{Binding LastModifyDT}"
-                    Loaded="HintButton_Loaded_2" />
                 <Button
                     Width="100"
                     Height="80"
+                    d:IsHidden="True"
                     Command="{Binding TestCommand}"
                     Content="執行" />
-
-
             </StackPanel>
 
         </Grid>

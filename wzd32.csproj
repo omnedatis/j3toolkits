@@ -59,6 +59,10 @@
   </ItemGroup>
 
   <ItemGroup>
+	  <ProjectReference Include="..\Shared\Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Assets\bentlyw.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
